@@ -15,7 +15,7 @@ write_one_spanner(
 \arguments{
 \item{spanner_info}{helper with spanner columns number and label.}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 

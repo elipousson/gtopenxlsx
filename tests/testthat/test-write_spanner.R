@@ -1,12 +1,13 @@
 test_that("Test that spanners are written correctly", {
   temp_dir_to_test <- withr::local_tempdir(fileext = "test")
-  wb <- openxlsx::createWorkbook()
+  wb <- openxlsx2::wb_workbook()
 
-  tester_wrapper <- function(gt_table, sheet) {
-    openxlsx::addWorksheet(wb, sheet)
+  tester_wrapper <- function(gt_table, wb, sheet) {
+    wb <- openxlsx2::wb_add_worksheet(wb, sheet)
 
     ordered_example <- gt_table |>
       create_ordered_data()
+
     write_spanners(gt_table,
       ordered_example,
       wb = wb,
@@ -33,7 +34,7 @@ test_that("Test that spanners are written correctly", {
       columns = c(mpg_c, mpg_h, hp, hp_rpm, trq, trq_rpm)
     )
 
-  tester_wrapper(tab_with_spanner, "one_spanner")
+  wb <- tester_wrapper(tab_with_spanner, wb, "one_spanner")
 
   tab_with_two_level_spanner <-
     tab |>
@@ -57,18 +58,18 @@ test_that("Test that spanners are written correctly", {
       columns = c(mpg_c, mpg_h, hp, hp_rpm, trq, trq_rpm)
     )
 
-  tester_wrapper(tab_with_two_level_spanner, "two_spanners")
+  wb <- tester_wrapper(tab_with_two_level_spanner, wb, "two_spanners")
 
   temp_file_location <- paste0(temp_dir_to_test, "\\spanners.xlsx")
-  openxlsx::saveWorkbook(wb, temp_file_location)
+  openxlsx2::wb_save(wb, temp_file_location)
 
   actual_output <- readxl::excel_sheets(temp_file_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = temp_file_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = temp_file_location, sheet = .x))
 
   expected_file_location <- testthat::test_path("fixtures", "spanners.xlsx")
 
   expected_output <- readxl::excel_sheets(expected_file_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = expected_file_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = expected_file_location, sheet = .x))
 
   expect_equal(actual_output[[1]], expected_output[[1]])
   expect_equal(actual_output[[2]], expected_output[[2]])

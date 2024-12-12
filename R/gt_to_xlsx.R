@@ -1,15 +1,15 @@
 #' Write a gt table to an xlsx workbook
 #'
 #' @param gt_table A gt table
-#' @param wb Name of Workbook object like `openxlsx::createWorkbook()`
+#' @param wb Name of Workbook object like `openxlsx2::wb_workbook()`
 #' @param sheet_name name of the sheet in the workbook
 #'
 #' @return Nothing. It will update the wb object.
 #' @export
 #'
 #' @examples
-#' wb <- openxlsx::createWorkbook()
-#' openxlsx::addWorksheet(wb, "gtcars_example_0")
+#' wb <- openxlsx2::wb_workbook()
+#' wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example_0")
 #'
 #' example_0 <- gt::gtcars |>
 #'   gt::gt()
@@ -33,23 +33,23 @@ gt_to_xlsx <- function(gt_table, wb, sheet_name) {
 
   current_row <- 1
 
-  write_table_header(
+  wb <- write_table_header(
     gt_table = gt_table,
     ordered_gt_data = ordered_data,
     wb = wb,
     sheet_name = sheet_name,
     row_to_start = current_row
   )
-  if (!is.null(gt_table$`_heading`$title)) {
+  if (!is.null(gt_table[["_heading"]][["title"]])) {
     current_row <- current_row + 1
   }
 
-  if (!is.null(gt_table$`_heading`$subtitle)) {
+  if (!is.null(gt_table[["_heading"]][["subtitle"]])) {
     current_row <- current_row + 1
   }
 
   if (nrow(gt_table$`_spanners`) > 0) {
-    write_spanners(
+    wb <- write_spanners(
       gt_table = gt_table,
       ordered_gt_data = ordered_data,
       wb = wb,
@@ -57,12 +57,12 @@ gt_to_xlsx <- function(gt_table, wb, sheet_name) {
       row_to_start = current_row
     )
 
-    number_of_level <- gt_table$`_spanners`$spanner_level |> max()
+    number_of_level <- max(gt_table[["_spanners"]][["spanner_level"]])
     current_row <- current_row + number_of_level
   }
 
 
-  write_stub_head_and_column_labels(
+  wb <- write_stub_head_and_column_labels(
     gt_table = gt_table,
     ordered_gt_data = ordered_data,
     wb = wb,
@@ -72,7 +72,10 @@ gt_to_xlsx <- function(gt_table, wb, sheet_name) {
 
   current_row <- current_row + 1
 
-  list_cell_indexes <- write_stub_and_table_body(
+  # FIXME: write_stub_and_table_body returns a wb - not list_cell_indexes
+  # list_cell_indexes <- write_stub_and_table_body(
+
+  wb <- write_stub_and_table_body(
     gt_table = gt_table,
     ordered_gt_data = ordered_data,
     wb = wb,
@@ -80,20 +83,22 @@ gt_to_xlsx <- function(gt_table, wb, sheet_name) {
     row_to_start = current_row
   )
 
+  # FIXME: figure out how to get list_cell_indexes from something else
+  # if (length(gt_table$`_source_notes`) > 0) {
+  #   final_index_stub <- list_cell_indexes |>
+  #     purrr::map(~ .x[["end"]]) |>
+  #     purrr::list_c() |>
+  #     max()
+  #
+  #   current_row <- final_index_stub + 1
+  #   wb <- write_source_note(
+  #     gt_table = gt_table,
+  #     ordered_gt_data = ordered_data,
+  #     wb = wb,
+  #     sheet_name = sheet_name,
+  #     row_to_start = current_row
+  #   )
+  # }
 
-  if (length(gt_table$`_source_notes`) > 0) {
-    final_index_stub <- list_cell_indexes |>
-      purrr::map(~ .x[["end"]]) |>
-      purrr::list_c() |>
-      max()
-
-    current_row <- final_index_stub + 1
-    write_source_note(
-      gt_table = gt_table,
-      ordered_gt_data = ordered_data,
-      wb = wb,
-      sheet_name = sheet_name,
-      row_to_start = current_row
-    )
-  }
+  wb
 }

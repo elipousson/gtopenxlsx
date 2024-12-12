@@ -27,11 +27,13 @@ get_spanner_info <- function(gt_table, row, ordered_gt_data) {
 #'
 create_spanner_helper <- function(gt_table, ordered_gt_data) {
   spanner_helper <- list()
+
   for (i in max(gt_table$`_spanners`$spanner_level):1) {
     spanner_helper[[paste0("level", i)]] <- which(gt_table$`_spanners`$spanner_level == i) |>
       purrr::map(~ get_spanner_info(gt_table, .x, ordered_gt_data))
   }
-  return(spanner_helper)
+
+  spanner_helper
 }
 
 #' Helper to write one spanner
@@ -49,18 +51,35 @@ write_one_spanner <- function(spanner_info,
                               sheet_name,
                               row_to_start,
                               style = column_labels_border) {
-  openxlsx::writeData(
+  wb <- openxlsx2::wb_add_data(
     wb = wb,
     sheet = sheet_name,
     x = spanner_info$label_spanner,
-    startCol = min(spanner_info$column_ids_spanner),
-    startRow = row_to_start
+    start_col = min(spanner_info[["column_ids_spanner"]]),
+    start_row = row_to_start
   )
-  openxlsx::mergeCells(wb = wb, sheet = sheet_name, cols = spanner_info$column_ids_spanner, rows = row_to_start)
-  openxlsx::addStyle(
-    wb = wb, sheet = sheet_name, rows = row_to_start,
-    cols = spanner_info$column_ids_spanner, style = style
+
+
+  wb <- openxlsx2::wb_merge_cells(
+    wb = wb,
+    sheet = sheet_name,
+    cols = spanner_info[["column_ids_spanner"]],
+    rows = row_to_start
   )
+
+  if (is.null(style)) {
+    return(wb)
+  }
+
+  # FIXME: Implement style setting
+  # openxlsx2::wb_set_cell_style_across(
+  #   wb = wb,
+  #   sheet = sheet_name,
+  #   rows = row_to_start,
+  #   cols = spanner_info[["column_ids_spanner"]],
+  #   style = style
+  # )
+  wb
 }
 
 #' Write spanners
@@ -75,8 +94,8 @@ write_one_spanner <- function(spanner_info,
 #' @export
 #'
 #' @examples
-#' wb <- openxlsx::createWorkbook()
-#' openxlsx::addWorksheet(wb, "one_spanner")
+#' wb <- openxlsx2::wb_workbook()
+#' wb <- openxlsx2::wb_add_worksheet(wb, "one_spanner")
 #'
 #' tab_with_spanner <-
 #'   gtcars_8 |>
@@ -96,19 +115,33 @@ write_one_spanner <- function(spanner_info,
 #'   sheet_name = "one_spanner",
 #'   row_to_start = 1
 #' )
-write_spanners <- function(gt_table, ordered_gt_data, wb, sheet_name, row_to_start) {
+write_spanners <- function(gt_table,
+                           ordered_gt_data,
+                           wb,
+                           sheet_name,
+                           row_to_start,
+                           style = NULL) {
   spanner_helper <- create_spanner_helper(gt_table, ordered_gt_data)
 
   row_to_start_spanner <- row_to_start
-  for (i in 1:length(spanner_helper)) {
-    spanner_helper[[i]] |>
-      purrr::map(~ write_one_spanner(wb,
-        sheet = sheet_name,
-        spanner = .x,
-        row = row_to_start_spanner,
-        style = column_labels_border
-      ))
+
+  for (i in seq_along(spanner_helper)) {
+    wb <- purrr::reduce(
+      spanner_helper[[i]],
+        \(x, y) {
+          write_one_spanner(
+            x,
+            sheet = sheet_name,
+            spanner = y,
+            row = row_to_start_spanner,
+            style = style %||% column_labels_border
+          )
+        },
+      .init = wb
+    )
 
     row_to_start_spanner <- row_to_start_spanner + 1
   }
+
+  wb
 }

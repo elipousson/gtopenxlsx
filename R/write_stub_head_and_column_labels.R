@@ -6,8 +6,8 @@
 #' @export
 #'
 #' @examples
-#' wb <- openxlsx::createWorkbook()
-#' openxlsx::addWorksheet(wb, "gtcars_example")
+#' wb <- openxlsx2::wb_workbook()
+#' wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example")
 #'
 #' ordered_example <- gtopenxlsx::gtcars_8 |>
 #'   gt::gt() |>
@@ -29,13 +29,17 @@ write_stub_head_and_column_labels <- function(gt_table, ordered_gt_data, wb, she
     label_to_write[[1]] <- NA_character_
   }
   ## write columns names
-  openxlsx::writeData(wb, sheet_name,
-    x = label_to_write, colNames = F,
-    startRow = row_to_start
+  wb <- openxlsx2::wb_add_data(wb, sheet_name,
+    x = label_to_write, col_names = FALSE,
+    start_row = row_to_start
   )
-  openxlsx::addStyle(wb, sheet_name,
-    rows = row_to_start,
-    cols = 1:length(label_to_write),
-    style = column_labels_border
-  )
+
+  # FIXME: Implement addStyle equivalent
+  # openxlsx::addStyle(wb, sheet_name,
+  #   rows = row_to_start,
+  #   cols = 1:length(label_to_write),
+  #   style = column_labels_border
+  # )
+
+  wb
 }

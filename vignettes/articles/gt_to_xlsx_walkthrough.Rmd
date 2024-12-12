@@ -110,11 +110,11 @@ write_table_header(
   sheet_name = sheet_name,
   row_to_start = current_row
 )
-if (!is.null(gt_table$`_heading`$title)) {
+if (!is.null(gt_table[["_heading"]][["title"]])) {
   current_row <- current_row + 1
 }
 
-if (!is.null(gt_table$`_heading`$subtitle)) {
+if (!is.null(gt_table[["_heading"]][["subtitle"]])) {
   current_row <- current_row + 1
 }
 

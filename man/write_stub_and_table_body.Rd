@@ -17,7 +17,7 @@ write_stub_and_table_body(
 
 \item{ordered_gt_data}{ordered data from `create_ordered_data`}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 
@@ -31,8 +31,8 @@ with the first row and last row with information for each group.
 Write stub and table body
 }
 \examples{
-wb <- openxlsx::createWorkbook()
-openxlsx::addWorksheet(wb, "gtcars_example")
+wb <- openxlsx2::wb_workbook()
+wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example")
 
 example_0 <- gt::gtcars |>
   gt::gt()

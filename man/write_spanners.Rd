@@ -4,14 +4,21 @@
 \alias{write_spanners}
 \title{Write spanners}
 \usage{
-write_spanners(gt_table, ordered_gt_data, wb, sheet_name, row_to_start)
+write_spanners(
+  gt_table,
+  ordered_gt_data,
+  wb,
+  sheet_name,
+  row_to_start,
+  style = NULL
+)
 }
 \arguments{
 \item{gt_table}{A gt table}
 
 \item{ordered_gt_data}{ordered data from `create_ordered_data`}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 
@@ -26,8 +33,8 @@ spanners.
 The cells of the spanner will be merged.
 }
 \examples{
-wb <- openxlsx::createWorkbook()
-openxlsx::addWorksheet(wb, "one_spanner")
+wb <- openxlsx2::wb_workbook()
+wb <- openxlsx2::wb_add_worksheet(wb, "one_spanner")
 
 tab_with_spanner <-
   gtcars_8 |>

@@ -9,7 +9,7 @@ gt_to_xlsx(gt_table, wb, sheet_name)
 \arguments{
 \item{gt_table}{A gt table}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 }
@@ -20,8 +20,8 @@ Nothing. It will update the wb object.
 Write a gt table to an xlsx workbook
 }
 \examples{
-wb <- openxlsx::createWorkbook()
-openxlsx::addWorksheet(wb, "gtcars_example_0")
+wb <- openxlsx2::wb_workbook()
+wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example_0")
 
 example_0 <- gt::gtcars |>
   gt::gt()

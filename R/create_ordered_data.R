@@ -15,7 +15,7 @@ create_ordered_data <- function(gt_table) {
   ordered_data <- gt_table$`_data`[, gt_table$`_boxhead`$var]
 
   # dealing with group by
-  if (!rlang::is_empty(gt_table$`_row_groups`)) {
+  if (!rlang::is_empty(gt_table[["_row_groups"]])) {
     group_vars <- gt_table$`_boxhead` |>
       dplyr::filter(type == "row_group") |>
       dplyr::pull(var)

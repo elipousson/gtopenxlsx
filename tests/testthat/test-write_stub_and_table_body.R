@@ -1,10 +1,10 @@
 test_that("Test that stub and table body are written correclty", {
   temp_dir_to_test <- withr::local_tempdir(fileext = "test")
-  wb <- openxlsx::createWorkbook()
+  wb <- openxlsx2::wb_workbook()
 
   actual_indexes_list <- list()
   tester_wrapper <- function(gt_table, sheet) {
-    openxlsx::addWorksheet(wb, sheet)
+    wb <- openxlsx2::wb_add_worksheet(wb, sheet)
 
     ordered_example <- gt_table |>
       create_ordered_data()
@@ -45,15 +45,15 @@ test_that("Test that stub and table body are written correclty", {
   actual_indexes_list[["group_by_and_rowname_col"]] <- tester_wrapper(tab, "group_by_and_rowname_col")
 
   temp_file_location <- paste0(temp_dir_to_test, "\\stub_and_body_test.xlsx")
-  openxlsx::saveWorkbook(wb, temp_file_location)
+  openxlsx2::wb_save(wb, temp_file_location)
 
   actual_output <- readxl::excel_sheets(temp_file_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = temp_file_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = temp_file_location, sheet = .x))
 
   expected_file_location <- testthat::test_path("fixtures", "stub_and_body.xlsx")
 
   expected_output <- readxl::excel_sheets(expected_file_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = expected_file_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = expected_file_location, sheet = .x))
 
   expect_equal(actual_output[[1]], expected_output[[1]])
   expect_equal(actual_output[[2]], expected_output[[2]])

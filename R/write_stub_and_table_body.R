@@ -9,8 +9,8 @@
 #' @export
 #'
 #' @examples
-#' wb <- openxlsx::createWorkbook()
-#' openxlsx::addWorksheet(wb, "gtcars_example")
+#' wb <- openxlsx2::wb_workbook()
+#' wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example")
 #'
 #' example_0 <- gt::gtcars |>
 #'   gt::gt()
@@ -23,11 +23,12 @@
 write_stub_and_table_body <- function(gt_table, ordered_gt_data, wb, sheet_name, row_to_start) {
   label_groups_row <- list()
   cell_data_row <- list()
-  if (rlang::is_empty(gt_table$`_row_groups`)) {
-    openxlsx::writeData(wb, sheet_name, ordered_gt_data,
-      startRow = row_to_start, colNames = F,
-      borders = "surrounding",
-      borderColour = "#D3D3D3"
+  if (rlang::is_empty(gt_table[["_row_groups"]])) {
+    wb <- openxlsx2::wb_add_data(wb, sheet_name, ordered_gt_data,
+      start_row = row_to_start, col_names = FALSE#,
+      # FIXME: Implement borders
+      # borders = "surrounding",
+      # borderColour = "#D3D3D3"
     )
 
     cell_data_row[["all"]][["start"]] <- row_to_start
@@ -37,12 +38,23 @@ write_stub_and_table_body <- function(gt_table, ordered_gt_data, wb, sheet_name,
     ## row group label
     row_start_stub <- row_to_start
 
-    for (i in unique(gt_table$`_row_groups`)) {
-      openxlsx::writeData(wb, sheet_name, i, startRow = row_start_stub)
-      openxlsx::mergeCells(wb, sheet_name, rows = row_start_stub, cols = 1:ncol(ordered_gt_data))
-      openxlsx::addStyle(
-        wb = wb, sheet = sheet_name, rows = row_start_stub,
-        cols = 1:ncol(ordered_gt_data), style = column_labels_border
+    for (i in unique(gt_table[["_row_groups"]])) {
+      wb <- openxlsx2::wb_add_data(wb, sheet_name, i, start_row = row_start_stub)
+      wb <- openxlsx2::wb_merge_cells(wb, sheet_name, dims = openxlsx2::wb_dims(rows = row_start_stub, cols = seq(ncol(ordered_gt_data))))
+
+      # FIXME: Replace addStyle
+      # openxlsx::addStyle(
+      #   wb = wb, sheet = sheet_name, rows = row_start_stub,
+      #   cols = 1:ncol(ordered_gt_data), style = column_labels_border
+      # )
+
+      wb <- openxlsx2::wb_add_cell_style(
+          wb = wb, sheet = sheet_name,
+          dims = openxlsx2::wb_dims(
+            rows = row_start_stub,
+            cols = seq(ncol(ordered_gt_data))
+          ),
+          style = column_labels_border
       )
 
       label_groups_row[[i]] <- row_start_stub
@@ -51,10 +63,15 @@ write_stub_and_table_body <- function(gt_table, ordered_gt_data, wb, sheet_name,
 
       data_to_write <- ordered_gt_data[gt_table$`_stub_df`$group_id == i, ]
 
-      openxlsx::writeData(wb, sheet_name, data_to_write,
-        startRow = row_start_stub, colNames = F,
-        borders = "surrounding",
-        borderColour = "#D3D3D3"
+      wb <- openxlsx2::wb_add_data(
+        wb = wb,
+        sheet = sheet_name,
+        x = data_to_write,
+        start_row = row_start_stub,
+        col_names = FALSE#,
+        # FIXME: Figure out how to implement borders
+        # borders = "surrounding",
+        # borderColour = "#D3D3D3"
       )
 
       cell_data_row[[i]][["start"]] <- row_start_stub
@@ -63,5 +80,7 @@ write_stub_and_table_body <- function(gt_table, ordered_gt_data, wb, sheet_name,
       row_start_stub <- row_start_stub + nrow(data_to_write)
     }
   }
-  return(cell_data_row)
+
+  wb
+  # return(cell_data_row)
 }

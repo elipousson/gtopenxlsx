@@ -36,7 +36,7 @@ devtools::install_github("yannsay-gtopenxlsx")
 Example from the GT documentation
 
 ```{r example, message=FALSE}
-library(gtopenxlsx)
+# library(gtopenxlsx)
 library(gt)
 library(dplyr)
 order_countries <- c("Germany", "Italy", "United States", "Japan")
@@ -94,12 +94,13 @@ tab <-
 ```
 
 ```{r, eval=FALSE}
-library(openxlsx)
-wb <- createWorkbook()
-addWorksheet(wb, "gt_cars_example", gridLines = F)
-tab |>
-  gt_to_xlsx(wb, "gt_cars_example")
-saveWorkbook(wb, "gt_cars_example.xlsx")
+wb <- wb_workbook()
+
+wb$add_worksheet("gt_cars_example", grid_lines = FALSE)
+
+wb <- gt_to_xlsx(tab, wb, sheet_name = "gt_cars_example")
+
+wb_save(wb, "gt_cars_example.xlsx")
 ```
 
 ![](inst/figures/excelsnapshot.png)

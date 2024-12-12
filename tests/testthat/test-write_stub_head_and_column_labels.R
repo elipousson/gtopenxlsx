@@ -1,13 +1,13 @@
 test_that("columns names are correct, no labels, no spanner", {
   temp_dir_to_test <- withr::local_tempdir(fileext = "test")
-  wb <- openxlsx::createWorkbook()
+  wb <- openxlsx2::wb_workbook()
 
   tab <- gtcars_8 |>
     dplyr::mutate(car = paste(mfr, model)) |>
     dplyr::select(-mfr, -model)
 
   # no group_by
-  openxlsx::addWorksheet(wb, "gtcars_test_no_group")
+  wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_test_no_group")
 
   gt_table_no_group <- tab |>
     gt::gt()
@@ -22,7 +22,7 @@ test_that("columns names are correct, no labels, no spanner", {
     row_to_start = 1
   )
   # group_by
-  openxlsx::addWorksheet(wb, "gtcars_test_gt_table_group_by")
+  wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_test_gt_table_group_by")
 
   gt_table_group_by <- tab |>
     dplyr::group_by(ctry_origin) |>
@@ -39,7 +39,7 @@ test_that("columns names are correct, no labels, no spanner", {
   )
 
   # rowname_col
-  openxlsx::addWorksheet(wb, "gtcars_test_rowname_col")
+  wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_test_rowname_col")
 
   gt_table_rowname_col <- tab |>
     gt::gt(rowname_col = "ctry_origin")
@@ -55,7 +55,7 @@ test_that("columns names are correct, no labels, no spanner", {
   )
 
   # group_by and rowname_col
-  openxlsx::addWorksheet(wb, "gtcars_test_both")
+  wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_test_both")
 
   gt_table_both <- tab |>
     dplyr::group_by(ctry_origin) |>
@@ -116,7 +116,7 @@ test_that("columns names are correct, no labels, no spanner", {
 
   ordered_example <- gt_table_spanners_merge_labels |>
     create_ordered_data()
-  openxlsx::addWorksheet(wb, "gt_spanners_merge_labels")
+  wb <- openxlsx2::wb_add_worksheet(wb, "gt_spanners_merge_labels")
 
   write_stub_head_and_column_labels(gt_table_spanners_merge_labels,
     ordered_example,
@@ -128,13 +128,13 @@ test_that("columns names are correct, no labels, no spanner", {
 
 
   temp_file_location <- paste0(temp_dir_to_test, "\\gtcars_test_col_names.xlsx")
-  openxlsx::saveWorkbook(wb, temp_file_location)
+  openxlsx2::wb_save(wb, temp_file_location)
   actual_output <- readxl::excel_sheets(temp_file_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = temp_file_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = temp_file_location, sheet = .x))
 
   expected_output_location <- testthat::test_path("fixtures", "gtcars_test_col_names.xlsx")
   expected_output <- readxl::excel_sheets(expected_output_location) |>
-    purrr::map(~ openxlsx::read.xlsx(xlsxFile = expected_output_location, sheet = .x))
+    purrr::map(~ openxlsx2::read_xlsx(file = expected_output_location, sheet = .x))
 
   expect_equal(actual_output[[1]], expected_output[[1]])
   expect_equal(actual_output[[2]], expected_output[[2]])

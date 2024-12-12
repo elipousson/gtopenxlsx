@@ -17,7 +17,7 @@ write_stub_head_and_column_labels(
 
 \item{ordered_gt_data}{ordered data from `create_ordered_data`}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 
@@ -30,8 +30,8 @@ Nothing. It will update the wb object with stub and columns labels.
 Write stub and columns label
 }
 \examples{
-wb <- openxlsx::createWorkbook()
-openxlsx::addWorksheet(wb, "gtcars_example")
+wb <- openxlsx2::wb_workbook()
+wb <- openxlsx2::wb_add_worksheet(wb, "gtcars_example")
 
 ordered_example <- gtopenxlsx::gtcars_8 |>
   gt::gt() |>

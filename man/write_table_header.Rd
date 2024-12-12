@@ -11,7 +11,7 @@ write_table_header(gt_table, ordered_gt_data, wb, sheet_name, row_to_start)
 
 \item{ordered_gt_data}{ordered data from `create_ordered_data`}
 
-\item{wb}{Name of Workbook object like `openxlsx::createWorkbook()`}
+\item{wb}{Name of Workbook object like `openxlsx2::wb_workbook()`}
 
 \item{sheet_name}{name of the sheet in the workbook}
 
